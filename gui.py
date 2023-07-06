@@ -2,7 +2,10 @@ import tkinter
 from tkinter import ttk
 import mido
 import miditoolkit
+from miditoolkit.midi import parser as mid_parser  
+from miditoolkit.midi import containers as ct
 import os
+from glob import glob
 
 
 
@@ -24,6 +27,7 @@ def button():
     path = os.getcwd()
     midi_path = os.path.join(path, 'midi')
     files = os.listdir(midi_path)
+    
 
     CHANGE_CONTROL_DICT = {
         1: "Modulation",
@@ -214,6 +218,47 @@ def button():
         return "key_switch_off"
 
 
+    def get_beat_range(midi_path):
+        midi_obj = mid_parser.MidiFile(midi_path)
+
+        time_list =[]
+
+        beat_per_kor = {120:"16분음표" , 240:"8분음표" , 480:"4분음표" , 480*2:"2분음표" ,480*4:"온음표"} 
+
+        for track in midi_obj.instruments:
+            if track.name == "chord":
+                continue
+            for note in track.notes:
+                if note.velocity !=1:
+                    time_result = note.end - note.start
+                    if  time_result >= 100:
+                        time_list.append(time_result)
+        
+        
+        try:
+            #result = max(time_list , key= time_list.count)
+            result = sum(time_list) / len(time_list)
+            
+            if 120 < result < 240:
+                return beat_per_kor[120] , beat_per_kor[240]
+            elif 240 < result < 480:
+                return beat_per_kor[240] , beat_per_kor[480]
+            elif 480 < result < 480 * 2:
+                return beat_per_kor[480] , beat_per_kor[480 * 2]
+            elif 480 * 2 < result < 480 * 4:
+                return beat_per_kor[480 * 2] , beat_per_kor[480 * 4]
+            elif 480 * 4 < result:
+                return beat_per_kor[480 * 4]
+            else:
+                return beat_per_kor[result]
+        except:
+            return "32분 음표 , 또는 스타카토 주법 (샘플 확인)"
+
+
+
+
+
+
 
     for file_name in files:
         if file_name.endswith(".mid"):
@@ -226,6 +271,7 @@ def button():
             pitch_wheel_result = get_pitch_wheel_on_off(tmp_path) , file_name
             velocity_result = get_velocity_range(tmp_path) , file_name
             key_switch_result = get_key_switch_on_off(tmp_path) , file_name
+            beat_result = get_beat_range(tmp_path) , file_name
             modulation_range = str(modulation_result)
             sustain_range = str(sustain_result)
             expression_range = str(expression_result)
@@ -234,6 +280,7 @@ def button():
             pitch_wheel_on_off = str(pitch_wheel_result)
             velocity_range = str(velocity_result)
             key_switch = str(key_switch_result)
+            beat = str(beat_result)
             text.insert(tkinter.INSERT  ,"Sustain : " + sustain_range + "\n")
             text.insert(tkinter.INSERT , "Modulation : " + modulation_range + "\n")
             text.insert(tkinter.INSERT , "Expression : " + expression_range + "\n")
@@ -242,6 +289,7 @@ def button():
             text.insert(tkinter.INSERT , "pitch_wheel : " + pitch_wheel_on_off + "\n")
             text.insert(tkinter.INSERT , "velocity : " + velocity_range + "\n")
             text.insert(tkinter.INSERT , "key_switch : " + key_switch + "\n")
+            text.insert(tkinter.INSERT , "beat : " + beat + "\n")
             text.insert(tkinter.INSERT  ,"---------------------------------" + "\n")
 
 

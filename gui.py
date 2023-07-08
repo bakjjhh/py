@@ -1,13 +1,11 @@
 import tkinter
-from tkinter import ttk
+#from tkinter import ttk
 import mido
 import miditoolkit
 from miditoolkit.midi import parser as mid_parser  
-from miditoolkit.midi import containers as ct
+#from miditoolkit.midi import containers as ct
 import os
 from glob import glob
-
-
 
 
 window=tkinter.Tk()
@@ -26,8 +24,8 @@ def button():
     text.delete("1.0" , "end")
     path = os.getcwd()
     midi_path = os.path.join(path, 'midi')
-    files = os.listdir(midi_path)
-    
+    #files = os.listdir(midi_path)
+    files = glob('/Users/bagjeonghun/Desktop/py/무제 폴더/미디데이터검수/1-1-1/*/*/*/*/*.mid')
 
     CHANGE_CONTROL_DICT = {
         1: "Modulation",
@@ -260,18 +258,19 @@ def button():
 
 
 
-    for file_name in files:
-        if file_name.endswith(".mid"):
-            tmp_path = os.path.join(midi_path, file_name)
-            modulation_result = get_modulation_range(tmp_path), file_name
-            sustain_result = get_sustain_range(tmp_path) , file_name
-            expression_result = get_Expression_range(tmp_path) , file_name
-            volume_result = get_volume_range(tmp_path) , file_name
-            pitch_range_result = get_pitch_range(tmp_path) , file_name
-            pitch_wheel_result = get_pitch_wheel_on_off(tmp_path) , file_name
-            velocity_result = get_velocity_range(tmp_path) , file_name
-            key_switch_result = get_key_switch_on_off(tmp_path) , file_name
-            beat_result = get_beat_range(tmp_path) , file_name
+    for tmp_path in files:
+        if tmp_path.endswith(".mid"):
+            #tmp_path = os.path.join(midi_path, file_name)
+            splitted_data =tmp_path.split("/")
+            modulation_result = get_modulation_range(tmp_path)
+            sustain_result = get_sustain_range(tmp_path)
+            expression_result = get_Expression_range(tmp_path)
+            volume_result = get_volume_range(tmp_path)
+            pitch_range_result = get_pitch_range(tmp_path)
+            pitch_wheel_result = get_pitch_wheel_on_off(tmp_path)
+            velocity_result = get_velocity_range(tmp_path)
+            key_switch_result = get_key_switch_on_off(tmp_path) 
+            beat_result = get_beat_range(tmp_path)
             modulation_range = str(modulation_result)
             sustain_range = str(sustain_result)
             expression_range = str(expression_result)
@@ -281,6 +280,8 @@ def button():
             velocity_range = str(velocity_result)
             key_switch = str(key_switch_result)
             beat = str(beat_result)
+            text.insert(tkinter.INSERT  ,f'{splitted_data[8]}-{splitted_data[10]}\n')
+            text.insert(tkinter.INSERT  ,"---------------------------------" + "\n")
             text.insert(tkinter.INSERT  ,"Sustain : " + sustain_range + "\n")
             text.insert(tkinter.INSERT , "Modulation : " + modulation_range + "\n")
             text.insert(tkinter.INSERT , "Expression : " + expression_range + "\n")
